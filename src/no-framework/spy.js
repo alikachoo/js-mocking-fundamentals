@@ -8,13 +8,24 @@ const assert = require('assert')
 const thumbWar = require('../thumb-war')
 const utils = require('../utils')
 
-function fn(impl = () => {}) {
+function fn(impl = () => {}) { // does impl get stored in heap?
   const mockFn = (...args) => {
     mockFn.mock.calls.push(args)
     return impl(...args)
   }
   mockFn.mock = {calls: []}
+  mockFn.mockImplementation = (fn) => {
+    impl = fn;
+  }
   return mockFn
+}
+
+function spyOn(obj, fnName) {
+  const originalFn = obj[fnName];
+  obj[fnName] = fn();
+  obj[fnName].mockRestore = () => {
+    obj[fnName] = originalFn;
+  };
 }
 
 spyOn(utils, 'getWinner')

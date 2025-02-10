@@ -10,12 +10,23 @@ function fn(impl = () => {}) {
     return impl(...args)
   }
   mockFn.mock = {calls: []}
+  mockFn.mockImplementation = (fn) => impl = fn;
   return mockFn
 }
+
+function spyOn(obj, prop) {
+  const originalObj = obj[prop];
+  obj[prop] = fn();
+  obj[prop].mockRestore = () => obj[prop] = originalObj;
+}
+
 
 const assert = require('assert')
 const thumbWar = require('../thumb-war')
 const utils = require('../utils')
+
+spyOn(utils, 'getWinner')
+utils.getWinner.mockImplementation((p1, p2) => p1)
 
 const winner = thumbWar('Kent C. Dodds', 'Ken Wheeler')
 assert.strictEqual(winner, 'Kent C. Dodds')
